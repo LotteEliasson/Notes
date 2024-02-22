@@ -20,7 +20,7 @@ export default StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'flex-start'
+    alignItems: 'center'
   },
   outputContainer:{
     flex: 1,
@@ -82,14 +82,34 @@ export default StyleSheet.create({
     color: '#b8d4b8',
     fontSize: 17,
   },
+  returnText: {
+    color: '#b8d4b8',
+    fontSize: 17,
+  },
+
   loadBtn: {
     
   },
   loadText: {
     color: '#b8d4b8',
     fontSize: 17,
-  }
+  },
 
+  noteDetailContainer:{
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    padding: 20,
+  },
+
+  noteDetailInput:{
+    flex: 1,
+    width: '100%',
+    color: '#b8d4b8',
+   
+    
+  },
 
 
 });

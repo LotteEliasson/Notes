@@ -2,16 +2,20 @@ import { View, TextInput, TouchableOpacity, Text } from 'react-native';
 import styles from './styles';
 
 
-const NoteInput =({ newNote, setNewNote, handleNoteList}) => (
+const NoteListInput =({ newNote, setNewNote, handleNoteList}) => (
 <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
             value={newNote}
             onChangeText={setNewNote}
-            placeholder="Enter new note here"
+            placeholder="Enter note name here"
+            placeholderTextColor={'#b8d4b8'}
           />
       
-            <TouchableOpacity title="Add" onPress={ handleNoteList } style={styles.button}>
+            <TouchableOpacity title="Add" onPress={() =>handleNoteList()}
+              
+              style={styles.button}
+            >
               <Text style={styles.buttonText}>Add Note</Text>  
             </TouchableOpacity>
         </View>
@@ -19,4 +23,4 @@ const NoteInput =({ newNote, setNewNote, handleNoteList}) => (
 
 );
 
-export default NoteInput;
+export default NoteListInput;
