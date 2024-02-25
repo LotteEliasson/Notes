@@ -1,20 +1,16 @@
 import { app, database } from './firebase'
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore'
+import { doc, deleteDoc, getFirestore } from 'firebase/firestore'
 import { collection, addDoc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values'
 import { useState, useEffect } from 'react';
-import { View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, FlatList, TouchableOpacity, Text, Image, TextInput } from 'react-native';
+
 
 import styles from './styles';
 import Header from './Header';
-import NoteListInput from './NoteListInput';
-import NoteList from './NoteList';
 import Footer from './Footer';
 
 const NoteListPage = ({ navigation }) => {
@@ -25,44 +21,17 @@ const NoteListPage = ({ navigation }) => {
   const data = values?.docs.map((doc) => ({...doc.data(), id:doc.id})) //Skal tilføje data i NoteList for at hente fra FB!
 
 
-  // alert (JSON.stringify(database, null, 4))
-
-  // function savePressed(){
-  //   addDoc(collection(database, "notes"), {
-  //     text: "hej fra klient"
-  //   })
-  // }
-
-
-  async function saveList(){
-    try{
-          const jsonValue = JSON.stringify(noteList)
-          console.log(jsonValue)
-          await AsyncStorage.setItem('@myList', jsonValue)
-    }catch (error){
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-  if (noteList.length > 0) {
-    saveList();
-  }
-  }, [noteList]);
-
 
   const handleNoteList = async() => {
     if (newNote.trim() === '') return;     //undgå tom note bliver tilføjet
 
-    const newNoteItem = {key: uuidv4(), name:newNote}
-
-    setNoteList([...noteList, newNoteItem]);  //Ny note til liste -> alt. ([...list, {key:list.length, value:text}])
-    setNewNote('');                           //rydder inputfelt
-
     try{
       await addDoc(collection(database, "notes"), {
-        newNote
+         text: newNote
       });
+      
+      setNewNote('')
+
     } catch(err){
       console.log("error FB" +err)
     };
@@ -70,51 +39,72 @@ const NoteListPage = ({ navigation }) => {
 
   function handleNavigation(noteItem){
     navigation.navigate('NotePage', {
-      noteDetails: noteItem,
-      
+      details: noteItem,
     });
   } 
 
-  const handleDelete = (keyDeleted) => {
-    const newNoteList = noteList.filter(note => note.key !== keyDeleted)
-    setNoteList(newNoteList);
-
-
-  }
-
-
-  async function loadList(){
+  const handleDelete = async (noteId) => {
     try {
-      const jsonValue = await AsyncStorage.getItem('@myList')
-      const arr = JSON.parse(jsonValue)
-      if(arr != null){
-        setNoteList(arr)
-      }
-    }catch (error){}
-  }
+      await deleteDoc(doc(database, "notes", noteId));
+    } catch (err) {
+      console.error("Error deleting from firestore: ", err);
+    }
 
-  useEffect(()=> {
-      loadList()
-  }, []);
+  };
 
 
   return(
     <View style={styles.container}>
+      
       <Header />
-      <NoteListInput 
-        newNote={newNote}
-        setNewNote={setNewNote}
-        handleNoteList={handleNoteList}
-        saveList={saveList}
-      />
-      <NoteList 
-        noteList={noteList}
-        handleDelete={handleDelete}
-        handleNavigation={handleNavigation}
-      />
+
+      <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={newNote}
+            onChangeText={setNewNote}
+            placeholder="Enter note name here"
+            placeholderTextColor={'#b8d4b8'}
+          />
+      
+            <TouchableOpacity title="Add" onPress={() =>handleNoteList()}
+              
+              style={styles.button}
+            >
+              <Text style={styles.buttonText}>Add Note</Text>  
+            </TouchableOpacity>
+        </View>
+
+
+        <FlatList  
+          data = {data} //Skal ændres til at tage data med som parameter for at hente list fra FB
+          keyExtractor={(item) => item.id}
+          renderItem = {({item}) => (
+            <View  style={styles.noteContainer}>
+              
+              <View style={styles.noteRow1}>
+                <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.buttonText}>
+                  <Image source={require('./assets/trash.png')} style={{width: 20, height: 20}}/>
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.noteRow2}>
+                <Image source={require('./assets/icon.png')} style={{width: 5, height: 5}}/>
+              </View>
+
+              <View style={styles.noteRow3}>
+                <TouchableOpacity title='NotePage' onPress= {() => {handleNavigation(item)}}>            
+                  <Text style={styles.textList}>{item.text}</Text>
+                </TouchableOpacity>
+              </View>
+        </View>
+          )}
+         
+          contentContainerStyle={styles.contentContainer}
+          style={styles.outputContainer}
+        />
       <Footer 
-        saveList={saveList}
-        loadList={loadList}
+       
       /> 
     </View>
 

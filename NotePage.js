@@ -1,3 +1,6 @@
+
+import { doc, updateDoc, getDoc } from 'firebase/firestore'
+import { database } from './firebase';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useState, useEffect } from 'react';
@@ -8,48 +11,53 @@ import styles from './styles';
 
 const NotePage = ({ navigation, route }) => {
 
-  const [newNoteDetails, setNewNoteDetails] = useState ('');
+  const [noteDetails, setNoteDetails] = useState ('');
+  const details = route.params?.details;
 
-  const noteDetails = route.params?.noteDetails;
 
   useEffect(() => {
-    async function loadNote(){
-      try {
-        const jsonValue = await AsyncStorage.getItem(`note_${noteDetails.key}`);
-        if (jsonValue !== null){
-          setNewNoteDetails(JSON.parse(jsonValue));
+    const getNoteDetails = async () =>{
+      const noteRef = doc(database, "notes", details.id);
+      try{
+        const getDetails = await getDoc(noteRef);
+        if(getDetails.exists()){
+          setNoteDetails(getDetails.data().details || '');
         } else {
-          setNewNoteDetails('');
+          console.log("No note found");
         }
-      }catch(error) {
-        console.error('failed to load note', error)
+      }catch(err){
+        console.error("Error fetching note document", err);
       }
-    }
-    loadNote();
-  }, [noteDetails.key]);
+    };
+    getNoteDetails();
+  }, [details.id]);
 
-  async function saveNote(){
-    try{
-          const jsonValue = JSON.stringify(newNoteDetails)
-          console.log(jsonValue)
-          await AsyncStorage.setItem(`note_${noteDetails.key}`, jsonValue);
-          console.log('note saved')
-    }catch (error){
-      console.log('note didnt get saved')
+
+  const saveNoteDetails = async () => {
+    const noteRef = doc(database, "notes", details.id);
+    try {
+      await updateDoc(noteRef, {
+        details: noteDetails
+      });
+      console.log("NoteDetails saved");
+    } catch(err) {
+      console.error("Error updating Note", err);
     }
   }
+
 
   return(
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-      <Text style={styles.text}>Note: {noteDetails.name}</Text>
+      <Text style={styles.text}>Note: {details.text}</Text>
       </View>
+
       <View style={styles.noteDetailContainer}>
         <TextInput
           multiline
           textAlign='top'
-          value={newNoteDetails}
-          onChangeText={text => setNewNoteDetails(text)}
+          value={noteDetails}
+          onChangeText={setNoteDetails}
           placeholder='Add notes here....'
           placeholderTextColor={'#b8d4b8'}
           style={styles.noteDetailInput}
@@ -57,22 +65,14 @@ const NotePage = ({ navigation, route }) => {
       </View>
 
       <View style={styles.footerContainer}>
-        <View style={styles.saveBtn}>
-          <TouchableOpacity onPress={saveNote}>
-            <Text style={styles.saveText}>Save Note</Text>
-          </TouchableOpacity> 
-        </View>
-
-        <View>
-          <TouchableOpacity onPress={async () =>{
-              await saveNote();
-              navigation.goBack();
-            }
+        <TouchableOpacity onPress={async () =>{
+            await saveNoteDetails();
+            navigation.goBack();
           }
-             >
-            <Text style={styles.returnText}>Return to List</Text>
-          </TouchableOpacity>
-        </View>
+        }
+            >
+          <Text style={styles.returnText}>Save and return to List</Text>
+        </TouchableOpacity>
       </View>
 
     </View>
