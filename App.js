@@ -11,7 +11,10 @@ export default function App() {
   return(
     //Single Entry Point
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='NoteListPage'>
+      <Stack.Navigator 
+      initialRouteName='NoteListPage'
+      screenOptions={{headerShown: false}}
+      >
         <Stack.Screen 
           name='NoteListPage'
           component={NoteListPage}

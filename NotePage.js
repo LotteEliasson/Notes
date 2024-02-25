@@ -2,7 +2,6 @@
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { database } from './firebase';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useState, useEffect } from 'react';
 import styles from './styles';
 ;

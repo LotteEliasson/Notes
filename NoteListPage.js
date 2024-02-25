@@ -3,7 +3,6 @@ import { initializeApp } from 'firebase/app';
 import { doc, deleteDoc, getFirestore } from 'firebase/firestore'
 import { collection, addDoc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
-import { v4 as uuidv4 } from 'uuid';
 import 'react-native-get-random-values'
 import { useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, Image, TextInput } from 'react-native';
@@ -16,7 +15,6 @@ import Footer from './Footer';
 const NoteListPage = ({ navigation }) => {
   
   const [newNote, setNewNote] = useState('');
-  const [noteList, setNoteList] = useState([]);
   const [values, loading, error] = useCollection(collection(database, "notes"));
   const data = values?.docs.map((doc) => ({...doc.data(), id:doc.id})) //Skal tilføje data i NoteList for at hente fra FB!
 
