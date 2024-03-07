@@ -1,9 +1,10 @@
-import { app, database } from './firebase'
+import { app, database, storage } from './firebase'
 import { initializeApp } from 'firebase/app';
 import { doc, deleteDoc, getFirestore } from 'firebase/firestore'
 import { collection, addDoc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
-import 'react-native-get-random-values'
+import { ref } from 'firebase/storage';
+import 'react-native-get-random-values';
 import { useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, Image, TextInput } from 'react-native';
 
@@ -11,14 +12,14 @@ import { View, FlatList, TouchableOpacity, Text, Image, TextInput } from 'react-
 import styles from './styles';
 import Header from './Header';
 import Footer from './Footer';
+import { deleteObject } from 'firebase/storage';
 
 const NoteListPage = ({ navigation }) => {
   
   const [newNote, setNewNote] = useState('');
   const [values, loading, error] = useCollection(collection(database, "notes"));
+  
   const data = values?.docs.map((doc) => ({...doc.data(), id:doc.id})) //Skal tilføje data i NoteList for at hente fra FB!
-
-
 
   const handleNoteList = async() => {
     if (newNote.trim() === '') return;     //undgå tom note bliver tilføjet
@@ -26,8 +27,7 @@ const NoteListPage = ({ navigation }) => {
     try{
       await addDoc(collection(database, "notes"), {
          text: newNote
-      });
-      
+      });      
       setNewNote('')
 
     } catch(err){
@@ -37,19 +37,22 @@ const NoteListPage = ({ navigation }) => {
 
   function handleNavigation(noteItem){
     navigation.navigate('NotePage', {
-      details: noteItem,
+      details: noteItem,                
     });
   } 
 
   const handleDelete = async (noteId) => {
     try {
       await deleteDoc(doc(database, "notes", noteId));
+
+      const imageRef = ref(storage, noteId + ".jpg");
+      await deleteObject(imageRef);
+
     } catch (err) {
-      console.error("Error deleting from firestore: ", err);
+      console.error("Error deleting from firebase: ", err);
     }
 
   };
-
 
   return(
     <View style={styles.container}>
@@ -65,18 +68,14 @@ const NoteListPage = ({ navigation }) => {
             placeholderTextColor={'#b8d4b8'}
           />
       
-            <TouchableOpacity title="Add" onPress={() =>handleNoteList()}
-              
-              style={styles.button}
-            >
+            <TouchableOpacity title="Add" onPress={() =>handleNoteList()} style={styles.button}>
               <Text style={styles.buttonText}>Add Note</Text>  
             </TouchableOpacity>
         </View>
 
-
         <FlatList  
-          data = {data} //Skal ændres til at tage data med som parameter for at hente list fra FB
-          keyExtractor={(item) => item.id}
+          data = {data}
+          keyExtractor={(item) => item.id}  //Giver hver item i FlatList en unik key value.
           renderItem = {({item}) => (
             <View  style={styles.noteContainer}>
               
@@ -96,14 +95,14 @@ const NoteListPage = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
         </View>
-          )}
-         
+          )} 
           contentContainerStyle={styles.contentContainer}
           style={styles.outputContainer}
         />
+
       <Footer 
-       
       /> 
+
     </View>
 
   )

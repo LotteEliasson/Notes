@@ -54,6 +54,11 @@ export default StyleSheet.create({
   noteRow3: {
     paddingLeft: 5 
   },
+  imageDB: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   input: {
     height: 40,
     width: '65%',
@@ -85,6 +90,11 @@ export default StyleSheet.create({
   returnText: {
     color: '#b8d4b8',
     fontSize: 17,
+  },
+  textAdd: {
+    color: '#b8d4b8',
+    fontSize: 17,
+    paddingRight: 20,
   },
 
   loadBtn: {
