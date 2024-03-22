@@ -1,6 +1,6 @@
 import { app, database, storage } from './firebase'
 import { initializeApp } from 'firebase/app';
-import { doc, deleteDoc, getFirestore } from 'firebase/firestore'
+import { doc, deleteDoc, getFirestore, getDoc } from 'firebase/firestore'
 import { collection, addDoc } from 'firebase/firestore';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { ref } from 'firebase/storage';
@@ -41,11 +41,48 @@ const NoteListPage = ({ navigation }) => {
     });
   } 
 
+  // const handleDelete = async (noteId) => {
+  //   const noteRef = doc(database, "notes", noteId);
+  //   try {
+  //     const noteSnapshot = await getDoc(noteRef);
+  //     if (!noteSnapshot.exists()) {
+  //       console.log("Note not found");
+  //       return;
+  //     }
+      
+  //     const noteData = noteSnapshot.data();
+  //     const detailsId = noteData.detailsId;
+      
+  //     // Step 3: Delete images
+  //     await deleteImages(detailsId, noteData.images);
+      
+  //     // After images are deleted, delete the note document itself
+  //     await deleteDoc(noteRef);
+  
+  //   } catch (err) {
+  //     console.error("Error deleting note and details: ", err);
+  //   }
+  // };
+  // const deleteImages = async (details, imagesArray) => {
+  //   const deletePromises = imagesArray.map(async (image) => {
+  //     const imagePath = `images/${noteId}/`;
+  //     const imageRef = ref(storage, imagePath);
+  //     return deleteObject(imageRef);
+  //   });
+  // 
+  //   try {
+  //     await Promise.all(deletePromises);
+  //     console.log("All images deleted successfully.");
+  //   } catch (err) {
+  //     console.error("Error deleting images: ", err);
+  //   }
+  // };
+  
   const handleDelete = async (noteId) => {
     try {
       await deleteDoc(doc(database, "notes", noteId));
 
-      const imageRef = ref(storage, noteId + ".jpg");
+      const imageRef = ref(storage, `image/noteId`);
       await deleteObject(imageRef);
 
     } catch (err) {

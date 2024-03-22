@@ -12,6 +12,7 @@ export default StyleSheet.create({
   },
   headerContainer:{
     flex:0,
+    flexDirection: 'row',
     paddingTop:50,
     paddingBottom: 10,
     justifyContent: 'center',
@@ -54,10 +55,22 @@ export default StyleSheet.create({
   noteRow3: {
     paddingLeft: 5 
   },
-  imageDB: {
+  imageContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: "flex-end",
     alignItems: 'center',
+    marginBottom: 10
+  },
+  imageDB: {
+    marginRight: 10,
+    // flexDirection: 'row',
+    // justifyContent: 'flex-start',
+    // alignItems: 'flex-start',
+  },
+  back: {
+    paddingRight: 30,
+    justifyContent: 'left',
+    alignItems: 'left',
   },
   input: {
     height: 40,
